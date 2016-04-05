@@ -46,7 +46,7 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
     ];
 
     // Patched support for decoding empty strings for PHP 7+
-    $data = \json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
+    $data = @\json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
 
     if (JSON_ERROR_NONE !== json_last_error()) {
         $last = json_last_error();
