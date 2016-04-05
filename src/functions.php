@@ -20,11 +20,11 @@ use InvalidArgumentException;
  * Wrapper for JSON decode that implements error detection with helpful
  * error messages.
  *
- * @param string $json    JSON data to parse
- * @param bool $assoc     When true, returned objects will be converted
+ * @param string $json JSON data to parse
+ * @param bool $assoc When true, returned objects will be converted
  *                        into associative arrays.
- * @param int    $depth   User specified recursion depth.
- * @param int    $options Bitmask of JSON decode options.
+ * @param int $depth User specified recursion depth.
+ * @param int $options Bitmask of JSON decode options.
  *
  * @throws InvalidArgumentException if the JSON cannot be parsed.
  *
@@ -38,24 +38,39 @@ use InvalidArgumentException;
 function json_decode($json, $assoc = false, $depth = 512, $options = 0)
 {
     static $jsonErrors = [
-         JSON_ERROR_DEPTH => 'JSON_ERROR_DEPTH - Maximum stack depth exceeded',
-         JSON_ERROR_STATE_MISMATCH => 'JSON_ERROR_STATE_MISMATCH - Underflow or the modes mismatch',
-         JSON_ERROR_CTRL_CHAR => 'JSON_ERROR_CTRL_CHAR - Unexpected control character found',
-         JSON_ERROR_SYNTAX => 'JSON_ERROR_SYNTAX - Syntax error, malformed JSON',
-         JSON_ERROR_UTF8 => 'JSON_ERROR_UTF8 - Malformed UTF-8 characters, possibly incorrectly encoded',
+        JSON_ERROR_DEPTH => 'JSON_ERROR_DEPTH - Maximum stack depth exceeded',
+        JSON_ERROR_STATE_MISMATCH => 'JSON_ERROR_STATE_MISMATCH - Underflow or the modes mismatch',
+        JSON_ERROR_CTRL_CHAR => 'JSON_ERROR_CTRL_CHAR - Unexpected control character found',
+        JSON_ERROR_SYNTAX => 'JSON_ERROR_SYNTAX - Syntax error, malformed JSON',
+        JSON_ERROR_UTF8 => 'JSON_ERROR_UTF8 - Malformed UTF-8 characters, possibly incorrectly encoded',
     ];
 
+    // This will remove unwanted characters.
+
+// Check http://www.php.net/chr for details
+    for ($i = 0; $i <= 31; ++$i) {
+        $json = str_replace(chr($i), "", $json);
+    }
+    $json = str_replace(chr(127), "", $json);
+
+// This is the most common part
+// Some file begins with 'efbbbf' to mark the beginning of the file. (binary level)
+// here we detect it and we remove it, basically it's the first 3 characters
+    if (0 === strpos(bin2hex($json), 'efbbbf')) {
+        $json = substr($json, 3);
+    }
+
     // Patched support for decoding empty strings for PHP 7+
-    $data = @\json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
+    $data = \json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
 
     if (JSON_ERROR_NONE !== json_last_error()) {
         $last = json_last_error();
         throw new InvalidArgumentException(
-             'Unable to parse JSON data: '
-             . (isset($jsonErrors[$last])
-                 ? $jsonErrors[$last]
-                 : 'Unknown error')
-         );
+            'Unable to parse JSON data: '
+            . (isset($jsonErrors[$last])
+                ? $jsonErrors[$last]
+                : 'Unknown error')
+        );
     }
 
     return $data;
@@ -64,18 +79,18 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
 /**
  * Wrapper for json_encode that includes character escaping by default.
  *
- * @param  mixed          $data
- * @param  bool        $escapeChars
+ * @param  mixed $data
+ * @param  bool $escapeChars
  *
  * @return string|bool
  */
 function json_encode($data, $escapeChars = true)
 {
     $options =
-        JSON_HEX_AMP  |
+        JSON_HEX_AMP |
         JSON_HEX_APOS |
         JSON_HEX_QUOT |
-        JSON_HEX_TAG  |
+        JSON_HEX_TAG |
         JSON_UNESCAPED_UNICODE |
         JSON_UNESCAPED_SLASHES;
 
