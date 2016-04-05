@@ -58,16 +58,11 @@ class MessageFactory implements MessageFactoryInterface
      */
     public function fromResponse(HttpResponseInterface $response)
     {
-        try {
-            return $this->createResponse(
-                $response->getStatusCode(),
-                $response->getHeaders(),
-                JsonRpc\json_decode((string)$response->getBody(), true) ?: []
-            );
-        }
-        catch(\Exception $e){
-            throw new \Exception((string)$response->getBody());
-        }
+        return $this->createResponse(
+            $response->getStatusCode(),
+            $response->getHeaders(),
+            JsonRpc\json_decode((string) $response->getBody(), true) ?: []
+        );
     }
 
     /**

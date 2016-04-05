@@ -15,7 +15,8 @@
 namespace Graze\GuzzleHttp\JsonRpc;
 
 use InvalidArgumentException;
-
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 /**
  * Wrapper for JSON decode that implements error detection with helpful
  * error messages.
@@ -44,6 +45,16 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
          JSON_ERROR_SYNTAX => 'JSON_ERROR_SYNTAX - Syntax error, malformed JSON',
          JSON_ERROR_UTF8 => 'JSON_ERROR_UTF8 - Malformed UTF-8 characters, possibly incorrectly encoded',
     ];
+
+    // create a log channel
+    $log = new Logger('my-logger');
+    $log->pushHandler(new StreamHandler('/var/www/portal/storage/logs/json.log', Logger::WARNING));
+
+    // add records to the log
+    $log->addDebug('JSON');
+    $log->addDebug($json);
+
+
 
     // Patched support for decoding empty strings for PHP 7+
     $data = \json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
