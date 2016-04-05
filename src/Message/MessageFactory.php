@@ -58,8 +58,6 @@ class MessageFactory implements MessageFactoryInterface
      */
     public function fromResponse(HttpResponseInterface $response)
     {
-        throw new \Exception($response->getBody());
-
         return $this->createResponse(
             $response->getStatusCode(),
             $response->getHeaders(),

@@ -14,7 +14,7 @@
 
 namespace Graze\GuzzleHttp\JsonRpc;
 
-use InvalidArgumentException;
+//use InvalidArgumentException;
 
 /**
  * Wrapper for JSON decode that implements error detection with helpful
@@ -26,7 +26,7 @@ use InvalidArgumentException;
  * @param int    $depth   User specified recursion depth.
  * @param int    $options Bitmask of JSON decode options.
  *
- * @throws InvalidArgumentException if the JSON cannot be parsed.
+ * @throws \Exception if the JSON cannot be parsed.
  *
  * @return mixed
  *
@@ -50,7 +50,7 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
 
     if (JSON_ERROR_NONE !== json_last_error()) {
         $last = json_last_error();
-        throw new InvalidArgumentException(
+        throw new \Exception(
              'Unable to parse JSON data: '
              . (isset($jsonErrors[$last])
                  ? $jsonErrors[$last]
