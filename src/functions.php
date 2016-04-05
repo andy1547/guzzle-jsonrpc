@@ -54,9 +54,7 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
             . (isset($jsonErrors[$last])
                 ? $jsonErrors[$last]
                 : 'Unknown error');
-        throw new InvalidArgumentException(
-            $message.' JSON-'.$json
-         );
+        throw new InvalidArgumentException($json);
     }
 
     return $data;
