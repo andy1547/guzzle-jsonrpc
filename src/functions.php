@@ -45,12 +45,13 @@ function json_decode($json, $assoc = false, $depth = 512, $options = 0)
          JSON_ERROR_UTF8 => 'JSON_ERROR_UTF8 - Malformed UTF-8 characters, possibly incorrectly encoded',
     ];
 
-    throw new \Exception('Weird-'.$json);
+
 
     // Patched support for decoding empty strings for PHP 7+
     $data = \json_decode($json == "" ? "{}" : $json, $assoc, $depth, $options);
 
     if (JSON_ERROR_NONE !== json_last_error()) {
+        throw new \Exception('Weird-'.$json);
         $last = json_last_error();
         throw new InvalidArgumentException(
              'Unable to parse JSON data: '
