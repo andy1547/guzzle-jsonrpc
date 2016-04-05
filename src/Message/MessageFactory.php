@@ -17,7 +17,7 @@ namespace Graze\GuzzleHttp\JsonRpc\Message;
 use Graze\GuzzleHttp\JsonRpc;
 use Psr\Http\Message\RequestInterface as HttpRequestInterface;
 use Psr\Http\Message\ResponseInterface as HttpResponseInterface;
-
+use InvalidArgumentException;
 class MessageFactory implements MessageFactoryInterface
 {
     /**
@@ -58,11 +58,16 @@ class MessageFactory implements MessageFactoryInterface
      */
     public function fromResponse(HttpResponseInterface $response)
     {
-        return $this->createResponse(
-            $response->getStatusCode(),
-            $response->getHeaders(),
-            JsonRpc\json_decode((string) $response->getBody(), true) ?: []
-        );
+        try {
+            return $this->createResponse(
+                $response->getStatusCode(),
+                $response->getHeaders(),
+                JsonRpc\json_decode((string)$response->getBody(), true) ?: []
+            );
+        }
+        catch(InvalidArgumentException $e){
+            throw new \Exception((string)$response->getBody());
+        }
     }
 
     /**
